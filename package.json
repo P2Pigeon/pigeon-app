@@ -1,0 +1,74 @@
+{
+    "name": "pigeon",
+    "version": "0.1.0",
+    "description": "A free WebRTC browser-based video call",
+    "main": "main.js",
+    "build": {
+    "appId": "com.pigeon.app",
+    "files": [
+      "app/**/*",
+      "node_modules/**/*",
+      "package.json",
+      ".env"
+        ],
+    "directories": {
+      "buildResources": "resources"
+    },
+    "publish": null
+  },
+    "scripts": {
+        "start": "node app/src/server.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "lint": "npx prettier --write .",
+        "docker-build": "docker build --tag btcinfo/pigeon-app:latest -f contrib/docker/Dockerfile .",
+        "docker-rmi": "docker images |grep '<none>' |awk '{print $3}' |xargs docker rmi",
+        "docker-push": "docker push btcinfo/pigeon-app:latest",
+        "docker-pull": "docker pull btcinfo/pigeon-app:latest",
+        "docker-rmc": "docker container rm pigeon --force",
+        "docker-run": "docker run -d -p 3000:3000 --name pigeon btcinfo/pigeon-app:latest",
+        "docker-rune": "docker run -d -p 3000:3000 -v .env:/src/.env:ro --name pigeon btcinfo/pigeon-app:latest",
+        "docker-run-vm": "docker run -d -p 3000:3000 -v .env:/src/.env:ro -v ./app/:/src/app/:ro -v ./public/:/src/public/:ro --name pigeon btcinfo/pigeon-app:latest",
+        "docker-start": "docker start pigeon",
+        "docker-stop": "docker stop pigeon"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/MoonBaseDAO/pigeon-app"
+    },
+    "keywords": [
+        "webrtc",
+        "socket.io",
+        "p2p",
+        "nodejs",
+        "video"
+    ],
+    "author": "Moonbase devs",
+    "license": "AGPL-3.0",
+    "homepage": "https://github.com/MoonBaseDAO/pigeon-app",
+    "dependencies": {
+        "@hyperswarm/dht": "^6.2.1",
+        "@sentry/integrations": "^7.46.0",
+        "@sentry/node": "^7.46.0",
+        "base58-js": "^1.0.5",        
+        "body-parser": "^1.20.2",
+        "colors": "^1.4.0",
+        "compression": "^1.7.4",
+        "cors": "^2.8.5",
+        "crypto-js": "^4.1.1",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "keypear": "^1.1.1",        
+        "ngrok": "^4.3.3",
+        "qs": "^6.11.1",
+        "socket.io": "^4.6.1",
+        "swagger-ui-express": "^4.6.2",
+        "uuid": "9.0.0",
+        "xss": "^1.0.14",
+        "yamljs": "^0.3.0"
+    },
+    "devDependencies": {
+        "electron": "^24.0.0",
+        "node-fetch": "^2.6.6",
+        "prettier": "2.8.7"
+    }
+}
