@@ -2832,7 +2832,7 @@ ul.pricing-item-features-list li.is-checked::after {
     padding-left: 16px;
     padding-right: 16px;
     background-color: #376df9;
-    background: linear-gradient(100deg, #f09481 0, #ff5fa0 75%, #ffc55a 100%);
+    background: #1f4b9a;
 }
 
 @media (min-width: 641px) {
