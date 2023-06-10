@@ -1,21 +1,11 @@
 /*
- ██████ ██      ██ ███████ ███    ██ ████████ 
-██      ██      ██ ██      ████   ██    ██    
-██      ██      ██ █████   ██ ██  ██    ██    
-██      ██      ██ ██      ██  ██ ██    ██    
- ██████ ███████ ██ ███████ ██   ████    ██   
-*/
-
-/**
  * Pigeon P2P - Client component
  *
- * @link    GitHub: https://github.com/miroslavpejic85/pigeon
- * @link    Official Live demo: https://p2p.pigeon.com
+ * @link    GitHub: https://github.com/P2Pigeon/pigeon-app
+ * @link    Official Live demo: <soon!>
  * @license For open source use: AGPLv3
- * @license For commercial use or closed source, contact us at license.pigeon@gmail.com or purchase directly from CodeCanyon
- * @license CodeCanyon: https://codecanyon.net/item/pigeon-p2p-webrtc-realtime-video-conferences/38376661
- * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @version 1.0.3
+ * @author  Pigeon developers - hello@p2pigeon.com
+ * @version 0.1.0
  *
  */
 
