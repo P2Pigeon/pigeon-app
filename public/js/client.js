@@ -179,9 +179,6 @@ let initEnumerateDevicesFailed = false; // Check if user webcam and audio init i
 
 let isVideoPrivacyActive = false; // Video circle for privacy
 
-let surveyActive = true; // when leaving the room give a feedback, if false will be redirected to newcall page
-
-let surveyURL = 'https://www.questionpro.com/t/AUs7VZq00L';
 
 let myPeerId; // socket.id
 let peerInfo = {}; // Some peer info
@@ -936,10 +933,6 @@ async function handleConnect() {
  */
 function handleServerInfo(config) {
     let peers_count = config.peers_count;
-
-    // Get survey settings from server
-    surveyActive = config.survey.active;
-    surveyURL = config.survey.url;
 
     console.log('13. Peers count', peers_count);
 
@@ -7382,40 +7375,7 @@ function showAbout() {
  */
 function leaveRoom() {
     playSound('eject');
-    if (surveyActive) {
-        leaveFeedback();
-    } else {
-        openURL('/newcall');
-    }
-}
-
-/**
- * Ask for feedback when room exit
- */
-function leaveFeedback() {
-    Swal.fire({
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showDenyButton: true,
-        background: swalBackground,
-        imageUrl: imgFeedback,
-        title: 'Leave a feedback',
-        text: 'Do you want to rate your Pigeon experience?',
-        confirmButtonText: `Yes`,
-        denyButtonText: `No`,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            openURL(surveyURL);
-        } else {
-            openURL('/newcall');
-        }
-    });
+    openURL('/newcall');
 }
 
 /**
