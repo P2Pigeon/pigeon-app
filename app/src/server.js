@@ -1,5 +1,6 @@
 /*                                   
 dependencies: {
+    @hyperswarm/dht         : https://github.com/holepunchto/hyperswarm
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     @sentry/integrations    : https://www.npmjs.com/package/@sentry/integrations
     body-parser             : https://www.npmjs.com/package/body-parser
@@ -9,6 +10,7 @@ dependencies: {
     crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
+    keypear                 : https://github.com/holepunchto/keypear
     ngrok                   : https://www.npmjs.com/package/ngrok
     qs                      : https://www.npmjs.com/package/qs
     socket.io               : https://www.npmjs.com/package/socket.io
@@ -22,11 +24,10 @@ dependencies: {
 /**
  * Pigeon P2P - Server component
  *
- * @link    GitHub: https://github.com/MoonBaseDAO/pigeon-app
+ * @link    GitHub: https://github.com/P2Pigeon/pigeon-app
  * @link    Official Live demo: <soon!>
  * @license For open source use: AGPLv3
- * @author  Miroslav Pejic - miroslav.pejic.85@gmail.com
- * @author  Moonbase developers
+ * @author  Pigeon developers - hello@p2pigeon.com
  * @version 0.1.0
  *
  */
