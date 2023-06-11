@@ -229,7 +229,7 @@ app.get(['/login'], (req, res) => {
     if (hostCfg.protected == true) {
         const ip = getIP(req);
         log.debug(`Request login to host from: ${ip}`, req.query);
-        const { username, password } = req.query;
+        const { username, password } = checkXSS(req.query);
         if (username == hostCfg.username && password == hostCfg.password) {
             hostCfg.authenticated = true;
             authHost = new Host(ip, true);
@@ -293,13 +293,7 @@ app.get(['/test'], (req, res) => {
 app.get('/join/', (req, res) => {
     if (hostCfg.authenticated && Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
-        /* 
-            http://localhost:3000/join?room=test&name=pigeon&audio=1&video=1&screen=1&notify=1
-            https://p2p.pigeon.com/join?room=test&name=pigeon&audio=1&video=1&screen=1&notify=1
-            https://pigeon.up.railway.app/join?room=test&name=pigeon&audio=1&video=1&screen=1&notify=1
-            https://pigeon.herokuapp.com/join?room=test&name=pigeon&audio=1&video=1&screen=1&notify=1
-        */
-        const { room, name, audio, video, screen, notify } = req.query;
+        const { room, name, audio, video, screen, notify } = checkXSS(req.query);
         // all the params are mandatory for the direct room join
         if (room && name && audio && video && screen && notify) {
             return res.sendFile(views.client);
@@ -756,7 +750,7 @@ io.sockets.on('connect', async (socket) => {
     /**
      * Relay actions to peers or specific peer in the same room
      */
-
+//HERE
      socket.on('peerAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
