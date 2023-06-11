@@ -15,7 +15,7 @@
 
 const signalingServer = getSignalingServer();
 const roomId = getRoomId();
-const peerLoockupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
+const peerLookupUrl = 'https://extreme-ip-lookup.com/json/?key=demo2'; // get your API Key at https://extreme-ip-lookup.com
 const welcomeImg = '../images/image-placeholder.png';
 const shareUrlImg = '../images/image-placeholder.png';
 const leaveRoomImg = '../images/leave-room.png';
@@ -708,7 +708,7 @@ function getPeerInfo() {
  */
 async function getPeerGeoLocation() {
     console.log('07. Get peer geo location');
-    fetch(peerLoockupUrl)
+    fetch(peerLookupUrl)
         .then((res) => res.json())
         .then((outJson) => {
             peerGeo = outJson;

@@ -146,13 +146,6 @@ const sentryEnabled = process.env.SENTRY_ENABLED == 'false' ? true : false;
 const sentryDSN = process.env.SENTRY_DSN;
 const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
 
-// Slack API
-const CryptoJS = require('crypto-js');
-const qS = require('qs');
-const slackEnabled = process.env.SLACK_ENABLED == 'false' ? true : false;
-const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
-const bodyParser = require('body-parser');
-
 // Setup sentry client
 if (sentryEnabled) {
     Sentry.init({
@@ -196,7 +189,6 @@ app.use(cors()); // Enable All CORS Requests for all origins
 app.use(compression()); // Compress all HTTP responses using GZip
 app.use(express.json()); // Api parse body data as json
 app.use(express.static(dir.public)); // Use all static files from the public folder
-app.use(bodyParser.urlencoded({ extended: true })); // Need for Slack API body parser
 app.use(apiBasePath + '/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument)); // api docs
 
 // all start from here
@@ -361,42 +353,6 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
     });
 });
 
-/*
-    Pigeon Slack app v1
-    https://api.slack.com/authentication/verifying-requests-from-slack
-*/
-
-//Slack request meeting room endpoint
-app.post('/slack', (req, res) => {
-    if (!slackEnabled) return res.end('`Under maintenance` - Please check back soon.');
-
-    log.debug('Slack', req.headers);
-
-    if (!slackSigningSecret) return res.end('`Slack Signing Secret is empty!`');
-
-    let slackSignature = req.headers['x-slack-signature'];
-    let requestBody = qS.stringify(req.body, { format: 'RFC1738' });
-    let timeStamp = req.headers['x-slack-request-timestamp'];
-    let time = Math.floor(new Date().getTime() / 1000);
-
-    // The request timestamp is more than five minutes from local time. It could be a replay attack, so let's ignore it.
-    if (Math.abs(time - timeStamp) > 300) return res.end('`Wrong timestamp` - Ignore this request.');
-
-    // Get Signature to compare it later
-    let sigBaseString = 'v0:' + timeStamp + ':' + requestBody;
-    let mySignature = 'v0=' + CryptoJS.HmacSHA256(sigBaseString, slackSigningSecret);
-
-    // Valid Signature return a meetingURL
-    if (mySignature == slackSignature) {
-        let host = req.headers.host;
-        let meetingURL = getMeetingURL(host);
-        log.debug('Slack', { meeting: meetingURL });
-        return res.end(meetingURL);
-    }
-    // Something wrong
-    return res.end('`Wrong signature` - Verification failed!');
-});
-
 /**
  * Request meeting room endpoint
  * @returns  entrypoint / Room URL for your meeting.
@@ -479,7 +435,6 @@ async function ngrokStart() {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: true,
             own_turn_enabled: turnEnabled,
-            slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
@@ -535,7 +490,6 @@ server.listen(port, null, () => {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
-            slack_enabled: slackEnabled,
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
