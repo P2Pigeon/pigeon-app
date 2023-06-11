@@ -1,6 +1,6 @@
-/*                                   
+/*
+                                        
 dependencies: {
-    @hyperswarm/dht         : https://github.com/holepunchto/hyperswarm
     @sentry/node            : https://www.npmjs.com/package/@sentry/node
     @sentry/integrations    : https://www.npmjs.com/package/@sentry/integrations
     body-parser             : https://www.npmjs.com/package/body-parser
@@ -10,9 +10,9 @@ dependencies: {
     crypto-js               : https://www.npmjs.com/package/crypto-js
     dotenv                  : https://www.npmjs.com/package/dotenv
     express                 : https://www.npmjs.com/package/express
-    keypear                 : https://github.com/holepunchto/keypear
     ngrok                   : https://www.npmjs.com/package/ngrok
     qs                      : https://www.npmjs.com/package/qs
+    openai                  : https://www.npmjs.com/package/openai
     socket.io               : https://www.npmjs.com/package/socket.io
     swagger                 : https://www.npmjs.com/package/swagger-ui-express
     uuid                    : https://www.npmjs.com/package/uuid
@@ -39,22 +39,22 @@ require('dotenv').config();
 const { Server } = require('socket.io');
 const http = require('http');
 const https = require('https');
-const childProcess = require('child_process');
 const compression = require('compression');
-const crypto = require('crypto');
 const express = require('express');
+const childProcess = require('child_process');
 const cors = require('cors');
+const crypto = require('crypto');
 const path = require('path');
 const checkXSS = require('./xss.js');
 const app = express();
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
-
-const domain = process.env.HOST || '0.0.0.0';
-const isHttps = true;
+const domain = process.env.HOST || 'localhost';
+const isHttps = process.env.HTTPS == 'true';
 const port = process.env.PORT || 3000; // must be the same to client.js signalingServerPort
 const host = `http${isHttps ? 's' : ''}://${domain}:${port}`;
+
 
 function runHypernat(hserver, callback) {
 
@@ -106,7 +106,7 @@ io = new Server({
 // console.log(io);
 
 // Host protection (disabled by default)
-const hostProtected = process.env.HOST_PROTECTED == 'false' ? true : false;
+const hostProtected = process.env.HOST_PROTECTED == 'true' ? true : false;
 const hostCfg = {
     protected: hostProtected,
     username: process.env.HOST_USERNAME,
@@ -127,14 +127,14 @@ const api_key_secret = process.env.API_KEY_SECRET || genAPIKey();
 
 // Ngrok config
 const ngrok = require('ngrok');
-const ngrokEnabled = process.env.NGROK_ENABLED == 'false' ? true : false;
+const ngrokEnabled = process.env.NGROK_ENABLED == 'true' ? true : false;
 const ngrokAuthToken = process.env.NGROK_AUTH_TOKEN;
 
 // Stun config
 const stun = process.env.STUN || 'stun:stun.l.google.com:19302';
 
 // Turn config
-const turnEnabled = process.env.TURN_ENABLED == 'false' ? true : false;
+const turnEnabled = process.env.TURN_ENABLED == 'true' ? true : false;
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
@@ -142,7 +142,7 @@ const turnCredential = process.env.TURN_PASSWORD;
 // Sentry config
 const Sentry = require('@sentry/node');
 const { CaptureConsole } = require('@sentry/integrations');
-const sentryEnabled = process.env.SENTRY_ENABLED == 'false' ? true : false;
+const sentryEnabled = process.env.SENTRY_ENABLED == 'true' ? true : false;
 const sentryDSN = process.env.SENTRY_DSN;
 const sentryTracesSampleRate = process.env.SENTRY_TRACES_SAMPLE_RATE;
 
@@ -164,6 +164,27 @@ if (sentryEnabled) {
     });
 }
 
+// OpenAI/ChatGPT
+let chatGPT;
+const configChatGPT = {
+    enabled: process.env.CHATGPT_ENABLED == 'true' || false,
+    apiKey: process.env.CHATGTP_APIKEY,
+    model: process.env.CHATGTP_MODEL,
+    max_tokens: parseInt(process.env.CHATGPT_MAX_TOKENS),
+    temperature: parseInt(process.env.CHATGPT_TEMPERATURE),
+};
+if (configChatGPT.enabled) {
+    if (configChatGPT.apiKey) {
+        const { Configuration, OpenAIApi } = require('openai');
+        const configuration = new Configuration({
+            apiKey: configChatGPT.apiKey,
+        });
+        chatGPT = new OpenAIApi(configuration);
+    } else {
+        log.warning('ChatGPT seems enabled, but you missing the apiKey!');
+    }
+}
+
 // directory
 const dir = {
     public: path.join(__dirname, '../../', 'public'),
@@ -179,6 +200,8 @@ const views = {
     permission: path.join(__dirname, '../../', 'public/views/permission.html'),
     privacy: path.join(__dirname, '../../', 'public/views/privacy.html'),
     stunTurn: path.join(__dirname, '../../', 'public/views/testStunTurn.html'),
+    terms: path.join(__dirname, '../../', 'public/views/terms.html'),
+
 };
 
 let channels = {}; // collect channels
@@ -250,6 +273,11 @@ app.get(['/about'], (req, res) => {
     res.sendFile(views.about);
 });
 
+// pigeon hyperchat
+app.get(['/hyperchat'], (req, res) => {
+    res.sendFile(views.hyperchat);
+});
+
 // set new room name and join
 app.get(['/newcall'], (req, res) => {
     if (hostCfg.protected == true) {
@@ -275,17 +303,16 @@ app.get(['/privacy'], (req, res) => {
     res.sendFile(views.privacy);
 });
 
+// terms of service
+app.get(['/terms'], (req, res) => {
+    res.sendFile(views.terms);
+});
+
 // test Stun and Turn connections
 app.get(['/test'], (req, res) => {
     if (Object.keys(req.query).length > 0) {
         log.debug('Request Query', req.query);
     }
-    /*
-        http://localhost:3000/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://p2p.pigeon.com//test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://pigeon.up.railway.app/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-        https://pigeon.herokuapp.com/test?iceServers=[{"urls":"stun:stun.l.google.com:19302"},{"urls":"turn:openrelay.metered.ca:443","username":"openrelayproject","credential":"openrelayproject"}]
-    */
     res.sendFile(views.stunTurn);
 });
 
@@ -347,6 +374,7 @@ app.post([apiBasePath + '/meeting'], (req, res) => {
         meeting: meetingURL,
     });
 });
+
 
 /**
  * Request meeting room endpoint
@@ -428,8 +456,9 @@ async function ngrokStart() {
             test_ice_servers: testStunTurn,
             api_docs: api_docs,
             api_key_secret: api_key_secret,
-            use_self_signed_certificate: true,
+            use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            chatGPT_enabled: configChatGPT.enabled,
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
@@ -439,16 +468,14 @@ async function ngrokStart() {
     }
 }
 
-/**
- * Start Local Server with ngrok https tunnel (optional)
- */
- 
- // Start hypernat server
+// Start hypernat server
 runHypernat('./app/src/hypernat-server.js', function (err) {
     if (err) throw err;
     console.log('hypernat server has stopped!');
 });
-
+/**
+ * Start Local Server with ngrok https tunnel (optional)
+ */
 server.listen(port, null, () => {
     log.debug(
         `%c
@@ -462,7 +489,7 @@ server.listen(port, null, () => {
   ,~
  ('v)__
 (/ (\`\`/
- \__>' pigeon-v0.1.0
+ \__>' pigeon v0.1.0
   ^^
 
 	`,
@@ -485,6 +512,7 @@ server.listen(port, null, () => {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            chatGPT_enabled: configChatGPT.enabled,            
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
         });
@@ -530,6 +558,65 @@ io.sockets.on('connect', async (socket) => {
         log.debug('[' + socket.id + '] disconnected', { reason: reason });
         delete sockets[socket.id];
     });
+    
+    /**
+     * Handle incoming data, res with a callback
+     */
+    socket.on('data', async (dataObj, cb) => {
+        const data = checkXSS(dataObj);
+
+        log.debug('Socket Promise', data);
+        //...
+        const { room_id, peer_id, peer_name, method, params } = data;
+
+        switch (method) {
+            case 'checkPeerName':
+                log.debug('Check if peer name exists', { peer_name: peer_name, room_id: room_id });
+                for (let id in peers[room_id]) {
+                    if (peer_id != id && peers[room_id][id]['peer_name'] == peer_name) {
+                        log.debug('Peer name found', { peer_name: peer_name, room_id: room_id });
+                        cb(true);
+                        break;
+                    }
+                }
+                break;
+            case 'getChatGPT':
+                // https://platform.openai.com/docs/introduction
+                if (!configChatGPT.enabled) return cb('ChatGPT seems disabled, try later!');
+                try {
+                    // https://platform.openai.com/docs/api-reference/completions/create
+                    const completion = await chatGPT.createCompletion({
+                        model: configChatGPT.model || 'text-davinci-003',
+                        prompt: params.prompt,
+                        max_tokens: configChatGPT.max_tokens || 1000,
+                        temperature: configChatGPT.temperature || 0,
+                    });
+                    const response = completion.data.choices[0].text;
+                    log.debug('ChatGPT', {
+                        time: params.time,
+                        room: room_id,
+                        name: peer_name,
+                        prompt: params.prompt,
+                        response: response,
+                    });
+                    cb(response);
+                } catch (error) {
+                    if (error.response) {
+                        log.error('ChatGPT', error.response);
+                        cb(error.response.data.error.message);
+                    } else {
+                        log.error('ChatGPT', error.message);
+                        cb(error.message);
+                    }
+                }
+                break;
+            //....
+            default:
+                cb(false);
+                break;
+        }
+        cb(false);
+    });    
 
     /**
      * On peer join
@@ -600,6 +687,10 @@ io.sockets.on('connect', async (socket) => {
     socket.on('relayICE', async (config) => {
         const { peer_id, ice_candidate } = config;
 
+        // log.debug('[' + socket.id + '] relay ICE-candidate to [' + peer_id + '] ', {
+        //     address: config.ice_candidate,
+        // });
+
         await sendToPeer(peer_id, sockets, 'iceCandidate', {
             peer_id: socket.id,
             ice_candidate: ice_candidate,
@@ -630,8 +721,9 @@ io.sockets.on('connect', async (socket) => {
         const config = checkXSS(cfg);
         //log.debug('[' + socket.id + '] Room action:', config);
         const { room_id, peer_name, password, action } = config;
+        
         let room_is_locked = false;
-
+        //
         try {
             switch (action) {
                 case 'lock':
@@ -683,7 +775,7 @@ io.sockets.on('connect', async (socket) => {
                 peer_id_to_update = peer_id;
             }
         }
-
+                
         const data = {
             peer_id: peer_id_to_update,
             peer_name: peer_name_new,
@@ -703,7 +795,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer status', config);
-        const { room_id, peer_name, element, status } = config;
+       const { room_id, peer_name, element, status } = config;
 
         const data = {
             peer_id: socket.id,
@@ -750,8 +842,7 @@ io.sockets.on('connect', async (socket) => {
     /**
      * Relay actions to peers or specific peer in the same room
      */
-//HERE
-     socket.on('peerAction', async (cfg) => {
+    socket.on('peerAction', async (cfg) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Peer action', config);
@@ -787,7 +878,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         const { room_id, peer_id, peer_name } = config;
-        
+
         log.debug('[' + socket.id + '] kick out peer [' + peer_id + '] from room_id [' + room_id + ']');
 
         await sendToPeer(peer_id, sockets, 'kickOut', {
@@ -856,7 +947,7 @@ io.sockets.on('connect', async (socket) => {
 
         if (peer_id) {
             log.debug('[' + socket.id + '] emit videoPlayer to [' + peer_id + '] from room_id [' + room_id + ']', data);
-            
+
             await sendToPeer(peer_id, sockets, 'videoPlayer', data);
         } else {
             log.debug('[' + socket.id + '] emit videoPlayer to [room_id: ' + room_id + ']', data);
@@ -880,7 +971,7 @@ io.sockets.on('connect', async (socket) => {
         // Prevent XSS injection
         const config = checkXSS(cfg);
         log.debug('Whiteboard', config);
-        let room_id = config.room_id;
+        const { room_id } = config;
         await sendToRoom(room_id, socket.id, 'whiteboardAction', config);
     });
 

@@ -1,18 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- https://github.com/mikecao/umami -->
-
-        <script
-            async
-            defer
-            data-website-id="a378bd09-212d-4801-94cc-9797b6a5f3f7"
-            src="https://stats.pigeon.org/umami.js"
-        ></script>
 
         <!-- Title and Icon -->
 
-        <title>Pigeon WebRTC Video call, Chat Room & Screen Sharing.</title>
+        <title>Pigeon. Peer-2-Peer Instant Group Encrypted Online Network</title>
         <link rel="shortcut icon" href="../images/logo.svg" />
         <link rel="apple-touch-icon" href="../images/logo.svg" />
 
@@ -29,7 +21,7 @@
         />
         <meta
             name="keywords"
-            content="webrtc, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
+            content="webrtc, openAI, chatGPT, webrtc stun, webrtc turn, video meeting, video chat, multi video chat, peer to peer, p2p, zoom"
         />
 
         <!-- https://ogp.me -->
@@ -38,8 +30,8 @@
         <meta property="og:site_name" content="Pigeon" />
         <meta property="og:title" content="Click the link to join this call." />
         <meta property="og:description" content="Free WebRTC browser-based video call." />
-        <meta property="og:image" content="https://p2p.pigeon.com/images/preview.png" />
-        <meta property="og:url" content="https://p2p.pigeon.org" />
+        <meta property="og:image" content="" />
+        <meta property="og:url" content="" />
         <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon.png" />
 
         <!-- StyleSheet -->
@@ -127,7 +119,11 @@ access to use this app.
         <section id="msgerDraggable" class="msger-draggable fadein">
             <section id="msger" class="msger">
                 <header id="msgerHeader" class="msger-header">
-                    <div class="msger-header-title"><button id="msgerClose" class="fas fa-times"></button></div>
+                    <div class="msger-header-title">
+                        <button id="msgerClose" class="fas fa-times"></button>
+                        <button id="msgerMaxBtn" class="fas fa-expand"></button>
+                        <button id="msgerMinBtn" class="fas fa-compress"></button>
+                    </div>
                     <div class="msger-header-options">
                         <button id="msgerTheme" class="fas fa-ghost"></button>
                         <button id="msgerSaveBtn" class="fas fa-save"></button>
@@ -149,13 +145,14 @@ access to use this app.
                         cols="1"
                         id="msgerInput"
                         class="msger-input"
-                        placeholder="💬 Write a message..."
+                        placeholder="Write a message..."
                     ></textarea>
                 </div>
 
                 <div class="msger-input-buttons">
                     <button id="msgerEmojiBtn" class="fas fa-smile"></button>
                     <button id="msgerMarkdownBtn" class="fab fa-markdown"></button>
+                    <button id="msgerGPTBtn" class="fas fa-robot"></button>
                     <button id="msgerShareFileBtn" class="fas fa-paperclip"></button>
                     <button id="msgerVideoUrlBtn" class="fab fa-youtube"></button>
                     <button id="msgerCPBtn" class="fas fa-users"></button>
@@ -202,26 +199,28 @@ access to use this app.
 
         <!-- Start of caption section -->
 
-        <section id="captionDraggable" class="msger-draggable fadein">
-            <section id="caption" class="msger">
-                <header id="captionHeader" class="msger-header">
-                    <div class="msger-header-title">
+        <section id="captionDraggable" class="caption-draggable fadein">
+            <section id="caption" class="caption">
+                <header id="captionHeader" class="caption-header">
+                    <div class="caption-header-title">
                         <button id="captionClose" class="fas fa-times"></button>
+                        <button id="captionMaxBtn" class="fas fa-expand"></button>
+                        <button id="captionMinBtn" class="fas fa-compress"></button>
                     </div>
-                    <div class="msger-header-options">
+                    <div class="caption-header-options">
                         <button id="captionTheme" class="fas fa-ghost"></button>
                         <button id="captionSaveBtn" class="fas fa-save"></button>
                         <button id="captionClean" class="fas fa-trash"></button>
                     </div>
                 </header>
 
-                <main id="captionChat" class="msger-chat"></main>
-                <div class="msger-inputarea">
+                <main id="captionChat" class="caption-chat"></main>
+                <div class="caption-inputarea">
                     <button id="speechRecognitionIcon" class="fas fa-microphone-alt"></button>
                     <select id="recognitionLanguage"></select>
                     <select id="recognitionDialect"></select>
-                    <button type="button" id="speechRecognitionStart"><i class="fas fa-play"></i>&nbsp;Start</button>
-                    <button type="button" id="speechRecognitionStop"><i class="fas fa-stop"></i>&nbsp;Stop</button>
+                    <button id="speechRecognitionStart" class="fas fa-play">&nbsp;Start</button>
+                    <button id="speechRecognitionStop" class="fas fa-stop">&nbsp;Stop</button>
                 </div>
             </section>
         </section>
@@ -261,6 +260,7 @@ access to use this app.
                         <select id="audioOutput"></select>
                     </div>
                     <br />
+                    <hr />
                     <table id="mySettingsTable">
                         <tr id="pushToTalkDiv">
                             <td><label for="switchPushToTalk">👆 Push to talk</label></td>
@@ -271,6 +271,7 @@ access to use this app.
                             <td><input id="switchAudioPitchBar" class="toggle" type="checkbox" checked /></td>
                         </tr>
                     </table>
+                    <hr />
                 </div>
 
                 <div id="tabBandwidth" class="tabcontent">
@@ -316,13 +317,13 @@ access to use this app.
 
                 <div id="tabRoom" class="tabcontent">
                     <br />
-                    <div>
+                    <div id="tabRoomPeerName">
                         <label>My name</label><br />
                         <input id="myPeerNameSet" type="text" placeholder="Change name..." />&nbsp;&nbsp;
                         <button id="myPeerNameSetBtn"><i class="fas fa-user-edit"></i>&nbsp;Change</button>
                     </div>
                     <div id="tabRoomParticipants">
-                        <br />
+                        <br /><br />
                         <label>Participants</label><br />
                         <button id="muteEveryoneBtn"><i class="fas fa-microphone"></i>&nbsp;Mute everyone</button>
                         <button id="hideEveryoneBtn"><i class="fas fa-video"></i>&nbsp;Hide everyone</button>
@@ -347,9 +348,9 @@ access to use this app.
 
                 <div id="tabStyling" class="tabcontent">
                     <br />
-                    <label for="pigeonTheme">Theme color</label>
+                    <label for="mirotalkTheme">Theme color</label>
                     <br />
-                    <select id="pigeonTheme">
+                    <select id="mirotalkTheme">
                         <option value="dark">⚫️ Dark</option>
                         <option value="grey">⚪️ Grey</option>
                     </select>
@@ -364,9 +365,9 @@ access to use this app.
                         <option value="none">None</option>
                     </select>
                     <br /><br />
-                    <label for="pigeonBtnsBar">Buttons bar</label>
+                    <label for="mirotalkBtnsBar">Buttons bar</label>
                     <br />
-                    <select id="pigeonBtnsBar">
+                    <select id="mirotalkBtnsBar">
                         <option value="vertical">Vertical</option>
                         <option value="horizontal">Horizontal</option>
                     </select>
@@ -412,6 +413,17 @@ access to use this app.
                     <button id="whiteboardTextBtn" class="fas fa-spell-check"></button>
                     <button id="whiteboardLineBtn" class="fas fa-slash"></button>
                     <button id="whiteboardRectBtn" class="far fa-square"></button>
+                    <button id="whiteboardTriangleBtn" class="fas">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16px"
+                            height="16px"
+                            viewBox="0 0 24 24"
+                            fill="#FFFFFF"
+                        >
+                            <path d="M12 5.887l8.468 14.113h-16.936l8.468-14.113zm0-3.887l-12 20h24l-12-20z" />
+                        </svg>
+                    </button>
                     <button id="whiteboardCircleBtn" class="far fa-circle"></button>
                     <button id="whiteboardSaveBtn" class="fas fa-save"></button>
                     <button id="whiteboardEraserBtn" class="fas fa-eraser"></button>
@@ -428,7 +440,7 @@ access to use this app.
         <!-- Start File Send -->
 
         <div id="sendFileDiv" class="center fadein">
-            <img id="imgShareSend" src="../images/share.png" alt="pigeon-share-send" class="center-img" /><br />
+            <img id="imgShareSend" src="../images/share.png" alt="mirotalk-share-send" class="center-img" /><br />
             <div id="sendFileInfo"></div>
             <div id="sendFilePercentage"></div>
             <progress id="sendProgress" max="0" value="0"></progress>
@@ -440,7 +452,7 @@ access to use this app.
         <!-- Start File Receive -->
 
         <div id="receiveFileDiv" class="center fadein">
-            <img id="imgShareReceive" src="../images/share.png" alt="pigeon-share-receive" class="center-img" /><br />
+            <img id="imgShareReceive" src="../images/share.png" alt="mirotalk-share-receive" class="center-img" /><br />
             <div id="receiveFileInfo"></div>
             <div id="receiveFilePercentage"></div>
             <progress id="receiveProgress" max="0" value="0"></progress>
@@ -506,7 +518,7 @@ access to use this app.
         <script defer src="https://rawgit.com/leizongmin/js-xss/master/dist/xss.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/detectrtc@1.4.1/DetectRTC.min.js"></script>
-        <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.1"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.8"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/fabric@5.3.0-browser/dist/fabric.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
         <script defer src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
