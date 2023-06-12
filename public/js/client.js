@@ -5139,11 +5139,6 @@ function hideCaptionBox() {
  * Send Chat messages to peers in the room
  */
 async function sendChatMessage() {
-    if (!thereIsPeerConnections() && !isChatGPTOn) {
-        cleanMessageInput();
-        isChatPasteTxt = false;
-        return userLog('info', "Can't send message, no participants in the room");
-    }
 
     msgerInput.value = filterXSS(msgerInput.value.trim());
     const msg = checkMsg(msgerInput.value);
@@ -7547,11 +7542,7 @@ function sendVideoUrl(peer_id = null) {
                 return userLog('info', 'No participants detected');
             }
             console.log('Video URL: ' + result.value);
-            /*
-                https://www.youtube.com/watch?v=RT6_Id5-7-s
-                http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
-                https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3
-            */
+
             if (!isVideoTypeSupported(result.value)) {
                 return userLog('warning', 'Something wrong, try with another Video or audio URL');
             }
