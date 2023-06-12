@@ -45,8 +45,9 @@ const childProcess = require('child_process');
 const cors = require('cors');
 const crypto = require('crypto');
 const path = require('path');
-const checkXSS = require('./xss.js');
+const axios = require('axios');
 const app = express();
+const checkXSS = require('./xss.js');
 const Host = require('./host');
 const Logs = require('./logs');
 const log = new Logs('server');
@@ -138,6 +139,9 @@ const turnEnabled = process.env.TURN_ENABLED == 'true' ? true : false;
 const turnUrls = process.env.TURN_URLS;
 const turnUsername = process.env.TURN_USERNAME;
 const turnCredential = process.env.TURN_PASSWORD;
+
+// IP Lookup
+const IPLookupEnabled = process.env.IP_LOOKUP_ENABLED == 'true';
 
 // Sentry config
 const Sentry = require('@sentry/node');
@@ -458,6 +462,7 @@ async function ngrokStart() {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            ip_lookup_enabled: IPLookupEnabled,
             chatGPT_enabled: configChatGPT.enabled,
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
@@ -512,6 +517,7 @@ server.listen(port, null, () => {
             api_key_secret: api_key_secret,
             use_self_signed_certificate: isHttps,
             own_turn_enabled: turnEnabled,
+            ip_lookup_enabled: IPLookupEnabled,
             chatGPT_enabled: configChatGPT.enabled,            
             sentry_enabled: sentryEnabled,
             node_version: process.versions.node,
@@ -622,6 +628,13 @@ io.sockets.on('connect', async (socket) => {
      * On peer join
      */
     socket.on('join', async (cfg) => {
+        // Get peer IPv4 (::1 Its the loopback address in ipv6, equal to 127.0.0.1 in ipv4)
+        const peer_ip = socket.handshake.headers['x-forwarded-for'] || socket.conn.remoteAddress;
+
+        // Get peer Geo Location
+        if (IPLookupEnabled && peer_ip != '::1') {
+            cfg.peer_geo = await getPeerGeoLocation(peer_ip);
+        }    
         // Prevent XSS injection
         const config = checkXSS(cfg);
         // log.debug('Join room', config);
@@ -1074,6 +1087,22 @@ io.sockets.on('connect', async (socket) => {
         }
     }
 }); // end [sockets.on-connect]
+
+/**
+ * get Peer geo Location using GeoJS
+ * https://www.geojs.io/docs/v1/endpoints/geo/
+ *
+ * @param {string} ip
+ * @returns json
+ */
+async function getPeerGeoLocation(ip) {
+    const endpoint = `https://get.geojs.io/v1/ip/geo/${ip}.json`;
+    log.debug('Get peer geo', { ip: ip, endpoint: endpoint });
+    return axios
+        .get(endpoint)
+        .then((response) => response.data)
+        .catch((error) => log.error(error));
+}
 
 /**
  * Get ip
