@@ -29,7 +29,7 @@ const messageImg = '../images/message.png';
 const kickedOutImg = '../images/leave-room.png';
 const audioGif = '../images/audio.gif';
 const videoAudioShare = '../images/va-share.png';
-const aboutImg = '../images/mirotalk-logo.png';
+const aboutImg = '../images/pigeon-logo.png';
 const imgFeedback = '../images/feedback.png';
 const forbiddenImg = '../images/forbidden.png';
 const avatarImg = '../images/mirotalk-logo.png';
@@ -7794,7 +7794,7 @@ function showAbout() {
         background: swalBackground,
         position: 'center',
         title: '<strong>P2Pigeon</strong>',
-        imageAlt: 'mirotalk-about',
+        imageAlt: 'pigeon-about',
         imageUrl: aboutImg,
         html: `
         <br/>
