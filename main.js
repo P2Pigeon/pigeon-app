@@ -24,7 +24,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadURL("http://localhost:3000");
+  mainWindow.loadURL("https://localhost:3000");
   mainWindow.on("closed", function () {
     mainWindow = null;
   });
