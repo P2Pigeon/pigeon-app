@@ -1,9 +1,13 @@
-const { app, BrowserWindow } = require("electron");
+const { ipcMain, app, BrowserWindow } = require("electron");
 app.commandLine.appendSwitch('ignore-certificate-errors')
 app.commandLine.appendSwitch('allow-insecure-localhost', 'true')
 
-const server = require("./app/src/");
+ipcMain.on("messageFromRenderer", (event, message) => {
+  console.log("Electron ipcMain Process Received message from ipcRenderer:", message);
+  event.sender.send("messageFromMain", "Hello from main!");
+});
 
+const server = require("./app/src/");
 
 let mainWindow;
 
@@ -28,10 +32,7 @@ function createWindow() {
 
 app.on("ready", createWindow);
 
-// SSL/TSL: this is the self signed certificate support
 app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-    // On certificate error we disable default behaviour (stop loading the page)
-    // and we then say "it is all fine - true" to the callback
     event.preventDefault();
     callback(true);
 });

@@ -9,7 +9,7 @@ We prefer a Coordinated Vulnerability Disclosure (CVD) to properly understand an
 
 Your report should include:
 
--   Product version ([GitHub](https://github.com/MoonBaseDAO/pigeon-app/commits/master) commit hash.
+-   Product version ([GitHub](https://github.com/p2pigeon/pigeon-app/commits/master) commit hash.
 -   The affected component if possible (client.js, server.js, etc.)
 -   A vulnerability description
 -   Reproduction steps
