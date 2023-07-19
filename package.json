@@ -48,8 +48,8 @@
     "homepage": "https://github.com/MoonBaseDAO/pigeon-app",
     "dependencies": {
         "@hyperswarm/dht": "^6.2.1",
-        "@sentry/integrations": "^7.48.0",
-        "@sentry/node": "^7.48.0",
+        "@sentry/integrations": "^7.57.0",
+        "@sentry/node": "^7.57.0",
         "axios": "^1.3.5",
         "base58-js": "^1.0.5",        
         "body-parser": "^1.20.2",
@@ -63,8 +63,8 @@
         "ngrok": "^4.3.3",
         "openai": "^3.2.1",
         "qs": "^6.11.1",
-        "socket.io": "^4.6.1",
-        "swagger-ui-express": "^4.6.2",
+        "socket.io": "^4.7.1",
+        "swagger-ui-express": "^5.0.0",
         "uuid": "9.0.0",
         "xss": "^1.0.14",
         "yamljs": "^0.3.0"
@@ -72,6 +72,6 @@
     "devDependencies": {
         "electron": "^24.0.0",
         "node-fetch": "^2.6.6",
-        "prettier": "2.8.7"
+        "prettier": "3.0.0"
     }
 }
