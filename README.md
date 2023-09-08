@@ -7,9 +7,9 @@
   ^^
 </pre>
 
-**P2PIGEON:** **P**eer-2-Peer **I**nstant **G**roup **E**ncrypted **O**nline **N**etwork
 [![stars](https://img.shields.io/github/stars/p2pigeon/pigeon-app)](https://github.com/p2pigeon/pigeon-app/stargazers)
 
+**P2PIGEON:** **P**eer-2-Peer **I**nstant **G**roup **E**ncrypted **O**nline **N**etwork
 Pigeon.cx is a next generation communications platform built for resiliency, security and privacy: utilizing advanced and state of the art relays such as WebRTC, Hybernat and Nostr.
 
 ## Contributing 
