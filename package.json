@@ -4,18 +4,18 @@
     "description": "A free WebRTC browser-based video call",
     "main": "main.js",
     "build": {
-    "appId": "com.pigeon.app",
-    "files": [
-      "app/**/*",
-      "node_modules/**/*",
-      "package.json",
-      ".env"
+        "appId": "com.pigeon.app",
+        "files": [
+            "app/**/*",
+            "node_modules/**/*",
+            "package.json",
+            ".env"
         ],
-    "directories": {
-      "buildResources": "resources"
+        "directories": {
+            "buildResources": "resources"
+        },
+        "publish": null
     },
-    "publish": null
-  },
     "scripts": {
         "start": "electron .",
         "dev": "node app/src/server.js",
@@ -47,31 +47,31 @@
     "license": "AGPL-3.0",
     "homepage": "https://github.com/MoonBaseDAO/pigeon-app",
     "dependencies": {
-        "@hyperswarm/dht": "^6.2.1",
-        "@sentry/integrations": "^7.57.0",
-        "@sentry/node": "^7.57.0",
-        "axios": "^1.3.5",
-        "base58-js": "^1.0.5",        
+        "@hyperswarm/dht": "^6.5.1",
+        "@sentry/integrations": "^7.86.0",
+        "@sentry/node": "^7.86.0",
+        "axios": "^1.6.2",
+        "base58-js": "^1.0.5",
         "body-parser": "^1.20.2",
         "colors": "^1.4.0",
         "compression": "^1.7.4",
         "cors": "^2.8.5",
-        "crypto-js": "^4.1.1",
-        "dotenv": "^16.0.3",
+        "crypto-js": "^4.2.0",
+        "dotenv": "^16.3.1",
         "express": "^4.18.2",
-        "keypear": "^1.1.1",        
+        "keypear": "^1.2.0",
         "ngrok": "^4.3.3",
-        "openai": "^3.2.1",
-        "qs": "^6.11.1",
-        "socket.io": "^4.7.1",
+        "openai": "^3.3.0",
+        "qs": "^6.11.2",
+        "socket.io": "^4.7.2",
         "swagger-ui-express": "^5.0.0",
         "uuid": "9.0.0",
         "xss": "^1.0.14",
         "yamljs": "^0.3.0"
     },
     "devDependencies": {
-        "electron": "^24.0.0",
-        "node-fetch": "^2.6.6",
+        "electron": "^24.8.8",
+        "node-fetch": "^2.7.0",
         "prettier": "3.0.0"
     }
 }
